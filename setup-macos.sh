@@ -36,7 +36,7 @@ cd "$ROOT"
 uv sync --frozen --python 3.11 --extra dev --extra mac-whisper
 "$ROOT/scripts/install-codex-skill.sh"
 if [[ -f "$ROOT/remotion/package.json" ]]; then
-  npm install --prefix "$ROOT/remotion"
+  npm ci --prefix "$ROOT/remotion"
 fi
 "$ROOT/scripts/download-models.sh"
 uv run ugc-video doctor --fast

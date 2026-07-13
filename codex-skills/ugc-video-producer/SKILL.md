@@ -7,7 +7,7 @@ description: Produce a realistic UGC spokesperson video from a brief with local 
 
 Read the repository `AGENTS.md` and project `brief.json`, then run `uv run ugc-video doctor --fast`.
 
-1. Use `killer-script-system` for natural spoken dialogue and save it to `script.txt`.
+1. Use `$killer-script-system` for natural spoken dialogue and save it to `script.txt`.
 2. Use `imagegen` for a fictional adult, fully clothed, brand-safe 1080×1920 presenter still; inspect it and save it to `assets/still.png`.
 3. Run `uv run ugc-video run "$PROJECT_PATH"`.
 4. Complete a guided Grok handoff when requested, then run `uv run ugc-video resume "$PROJECT_PATH"`.

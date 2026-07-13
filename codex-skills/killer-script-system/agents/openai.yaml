@@ -1,0 +1,4 @@
+interface:
+  display_name: "Killer Script System"
+  short_description: "Write natural, retention-first video scripts"
+  default_prompt: "Use $killer-script-system to write a natural, retention-first script for this idea."

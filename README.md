@@ -2,9 +2,13 @@
 
 Build a vertical UGC spokesperson video with Codex, Grok, Fish Audio with ElevenLabs fallback, three local Whisper checks, and FFmpeg/Remotion finishing.
 
+The supported installers add the Codex CLI, Grok CLI, the bundled `ugc-video-producer` and
+`killer-script-system` Codex skills, and the pinned Remotion composition used to assemble the final
+vertical video. Students sign in with their own accounts; no instructor API keys are included.
+
 ## Supported computers
 
-- Apple Silicon MacBook on a current supported macOS release.
+- Apple Silicon M-series MacBook (M1 or later) on a current supported macOS release.
 - Windows 11 with WSL2 and Ubuntu.
 - 16 GB RAM recommended.
 - 15 GB free storage recommended before model and video downloads.

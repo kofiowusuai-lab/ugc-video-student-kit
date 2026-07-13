@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
-cd "$(dirname "$0")"
-./scripts/setup-linux.sh
-read -r -p "Press Enter to close..."
+set -Eeuo pipefail
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+exec "$ROOT/setup-macos.sh"

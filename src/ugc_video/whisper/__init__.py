@@ -1,16 +1,4 @@
-from dataclasses import dataclass
-from typing import Callable
+from ugc_video.whisper.router import AllBackendsFailed, transcribe_with_fallback
+from ugc_video.whisper.types import Attempt, RoutedTranscript, Transcript, Word
 
-@dataclass(frozen=True)
-class Transcript:
-    text: str
-    backend: str
-
-class WhisperRouter:
-    def __init__(self, backends: list[Callable[[str], Transcript]]): self.backends=backends
-    def transcribe(self, audio: str) -> Transcript:
-        errors=[]
-        for backend in self.backends:
-            try: return backend(audio)
-            except Exception as exc: errors.append(str(exc))
-        raise RuntimeError("all whisper backends failed: " + "; ".join(errors))
+__all__ = ["AllBackendsFailed", "Attempt", "RoutedTranscript", "Transcript", "Word", "transcribe_with_fallback"]

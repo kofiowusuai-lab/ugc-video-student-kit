@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+[project]
+name = "ugc-video-student-kit"
+version = "0.1.0"
+description = "Reproducible UGC video workflow for supported student machines"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = {text = "MIT"}
+dependencies = ["httpx>=0.28,<1", "platformdirs>=4.3,<5", "pydantic>=2.11,<3", "python-dotenv>=1.1,<2", "rich>=14,<15", "typer>=0.16,<1"]
+[project.optional-dependencies]
+dev = ["pytest>=8.4,<9", "ruff>=0.12,<1"]
+[project.scripts]
+ugc-video = "ugc_video.cli:app"
+[tool.hatch.build.targets.wheel]
+packages = ["src/ugc_video"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]

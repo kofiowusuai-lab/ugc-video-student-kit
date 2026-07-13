@@ -1,0 +1,1 @@
+"""Final vertical video rendering."""

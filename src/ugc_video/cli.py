@@ -5,7 +5,7 @@ from typing import Optional
 import typer
 
 from ugc_video import __version__
-from ugc_video.config import load_config
+from ugc_video.config import AppConfig, load_config, save_config
 from ugc_video.demo import build_offline_services, prepare_demo
 from ugc_video.doctor import run as doctor_run
 from ugc_video.pipeline.orchestrator import run_pipeline
@@ -14,7 +14,7 @@ from ugc_video.pipeline.services import build_services, provider_health
 from ugc_video.paths import AppPaths
 from ugc_video.progress import ProgressReporter
 from ugc_video.run_store import RunStore
-from ugc_video.secrets import read_secrets
+from ugc_video.secrets import read_secrets, write_secret
 
 app = typer.Typer(help="Student-safe UGC video production", invoke_without_command=True)
 whisper_app = typer.Typer(help="Install, inspect, and repair local Whisper fallbacks")
@@ -31,6 +31,29 @@ def _root() -> None:
 @app.command()
 def version() -> None:
     typer.echo(f"ugc-video {__version__}")
+
+
+@app.command()
+def setup(
+    fish_key: str = typer.Option("", "--fish-key", prompt="Fish Audio API key", hide_input=True),
+    elevenlabs_key: str = typer.Option(
+        "", "--elevenlabs-key", prompt="ElevenLabs API key (fallback)", hide_input=True
+    ),
+    xai_key: str = typer.Option(
+        "", "--xai-key", prompt="xAI API key (blank for guided Grok)", hide_input=True
+    ),
+) -> None:
+    paths = AppPaths.from_environment(os.environ)
+    for name, value in (
+        ("FISH_AUDIO_API_KEY", fish_key),
+        ("ELEVENLABS_API_KEY", elevenlabs_key),
+        ("XAI_API_KEY", xai_key),
+    ):
+        if value:
+            write_secret(paths.secrets, name, value)
+    if not paths.config.exists():
+        save_config(paths.config, AppConfig())
+    typer.echo(f"Local configuration saved under: {paths.root}")
 
 
 @app.command()

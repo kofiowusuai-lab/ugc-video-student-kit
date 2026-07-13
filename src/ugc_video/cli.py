@@ -11,6 +11,7 @@ from ugc_video.pipeline.orchestrator import run_pipeline
 from ugc_video.pipeline.project import create_project, project_paths
 from ugc_video.pipeline.services import build_services, provider_health
 from ugc_video.paths import AppPaths
+from ugc_video.progress import ProgressReporter
 from ugc_video.run_store import RunStore
 from ugc_video.secrets import read_secrets
 
@@ -74,7 +75,9 @@ def run_project(project: Path) -> None:
     config = load_config(paths.config)
     secrets = read_secrets(paths.secrets)
     project_config = project_paths(project)
-    output = run_pipeline(project_config, build_services(config, secrets, project_config))
+    reporter = ProgressReporter(secrets=list(secrets.values()))
+    services = build_services(config, secrets, project_config, reporter=reporter)
+    output = run_pipeline(project_config, services, reporter=reporter)
     typer.echo(f"Final video: {output}")
 
 

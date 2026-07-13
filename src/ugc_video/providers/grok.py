@@ -19,11 +19,13 @@ class GrokApiProvider:
         client: httpx.Client | None = None,
         sleep: Callable[[float], None] = time.sleep,
         max_polls: int = 120,
+        progress: Callable[[str], None] = lambda message: None,
     ) -> None:
         self._api_key = api_key
         self.client = client or httpx.Client(timeout=90)
         self.sleep = sleep
         self.max_polls = max_polls
+        self.progress = progress
 
     @property
     def headers(self) -> dict[str, str]:
@@ -55,6 +57,10 @@ class GrokApiProvider:
             if poll.is_error:
                 self._raise(poll)
             payload = poll.json()
+            status = str(payload.get("status", "unknown"))
+            reported = payload.get("progress")
+            suffix = f", progress={reported}" if reported is not None else ""
+            self.progress(f"Grok request {request_id}: {status}{suffix}")
             if payload.get("status") == "done":
                 media = self.client.get(payload["video"]["url"])
                 media.raise_for_status()

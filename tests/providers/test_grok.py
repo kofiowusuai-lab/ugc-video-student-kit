@@ -28,13 +28,16 @@ def test_api_mode_persists_request_and_downloads_result(tmp_path: Path) -> None:
         ]
     )
     respx.get("https://cdn.test/video.mp4").mock(return_value=httpx.Response(200, content=b"video"))
-    result = GrokApiProvider("xai-key", sleep=lambda _: None).animate(
+    messages: list[str] = []
+    result = GrokApiProvider("xai-key", sleep=lambda _: None, progress=messages.append).animate(
         AnimationRequest(
             image_path=image, prompt="Say the exact line.", destination=tmp_path / "animation.mp4"
         )
     )
     assert result.request_id == "req-1"
     assert result.video_path.read_bytes() == b"video"
+    assert any("req-1: pending, progress=25" in message for message in messages)
+    assert any("req-1: done" in message for message in messages)
 
 
 def test_guided_mode_writes_handoff_without_fake_output(tmp_path: Path) -> None:

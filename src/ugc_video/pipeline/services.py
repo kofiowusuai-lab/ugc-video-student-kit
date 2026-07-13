@@ -13,6 +13,7 @@ from ugc_video.domain import (
 )
 from ugc_video.pipeline.orchestrator import PipelineServices
 from ugc_video.pipeline.project import ProjectPaths
+from ugc_video.progress import ProgressReporter
 from ugc_video.providers.base import ProviderError, VoiceProvider
 from ugc_video.providers.elevenlabs import ElevenLabsProvider
 from ugc_video.providers.fish import FishAudioProvider
@@ -75,12 +76,24 @@ def provider_health(secrets: dict[str, str], name: str) -> ProviderHealth:
 
 
 def build_services(
-    config: AppConfig, secrets: dict[str, str], project: ProjectPaths
+    config: AppConfig,
+    secrets: dict[str, str],
+    project: ProjectPaths,
+    reporter: ProgressReporter | None = None,
 ) -> PipelineServices:
     fish, eleven = build_voice_providers(secrets)
     router = VoiceRouter(fish, eleven, RetryPolicy(max_attempts=3))
     guided = GuidedGrokProvider(project.root / "work/grok-handoff.json")
-    api = GrokApiProvider(secrets["XAI_API_KEY"]) if secrets.get("XAI_API_KEY") else None
+    api = (
+        GrokApiProvider(
+            secrets["XAI_API_KEY"],
+            progress=(lambda message: reporter.update("animation", message))
+            if reporter
+            else (lambda message: None),
+        )
+        if secrets.get("XAI_API_KEY")
+        else None
+    )
 
     def animate(script: str, still: Path, output: Path) -> dict[str, object]:
         prompt = (

@@ -13,3 +13,15 @@ def test_acceptance_script_is_local_and_non_destructive() -> None:
     assert "gitleaks" in script
     assert "ugc-video doctor --full" in script
     assert "rm -rf /" not in script
+
+
+def test_release_checklist_covers_the_completed_voice_wizard() -> None:
+    checklist = Path("docs/RELEASE-CHECKLIST.md").read_text(encoding="utf-8")
+    for text in [
+        "Voice setup wizard fake-provider tests",
+        "hidden prompts and safe rerun",
+        "lists bookmarked voice names",
+        "lists available fallback voice names",
+        "User approved deployment of v0.1.2",
+    ]:
+        assert text in checklist

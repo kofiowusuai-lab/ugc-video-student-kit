@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 - 2026-07-13
+
+- Add a child-simple Fish Audio and optional ElevenLabs key-and-voice walkthrough.
+- Complete the setup wizard with hidden key storage, numbered voice names, saved provider IDs, and readiness checks.
+- Preserve saved credentials and voice choices across blank or failed reruns.
+- Normalize provider lookup failures without exposing vendor details, keys, or voice IDs.
+
 ## 0.1.1 - 2026-07-13
 
 - Bundle and install the natural, retention-first Killer Script System on fresh machines.

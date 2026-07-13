@@ -54,3 +54,15 @@ def test_quota_error_is_classified_for_fallback(tmp_path: Path) -> None:
         )
     assert captured.value.kind == FailureKind.RATE_LIMIT
     assert "secret" not in str(captured.value)
+
+
+@respx.mock
+def test_voice_lookup_normalizes_network_failure() -> None:
+    respx.get("https://api.fish.audio/model").mock(
+        side_effect=httpx.ConnectError("private endpoint detail")
+    )
+    provider = FishAudioProvider("secret")
+    with pytest.raises(ProviderError) as captured:
+        provider.list_voices()
+    assert captured.value.kind == FailureKind.TRANSIENT
+    assert "private endpoint detail" not in str(captured.value)

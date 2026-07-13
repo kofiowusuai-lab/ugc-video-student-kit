@@ -39,11 +39,16 @@ class FishAudioProvider:
     def bookmarked_voices(self) -> dict[str, str]:
         voices: dict[str, str] = {}
         for page in range(1, 101):
-            response = self.client.get(
-                f"{self.base_url}/model",
-                params={"page_size": 100, "page_number": page},
-                headers=self.headers,
-            )
+            try:
+                response = self.client.get(
+                    f"{self.base_url}/model",
+                    params={"page_size": 100, "page_number": page},
+                    headers=self.headers,
+                )
+            except httpx.HTTPError as exc:
+                raise ProviderError(
+                    FailureKind.TRANSIENT, "Fish Audio voice lookup failed"
+                ) from exc
             if response.is_error:
                 self._raise(response)
             payload = response.json()

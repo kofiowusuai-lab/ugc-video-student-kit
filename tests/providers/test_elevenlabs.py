@@ -1,7 +1,10 @@
 from pathlib import Path
 from types import SimpleNamespace
 
-from ugc_video.domain import VoiceRequest
+import pytest
+
+from ugc_video.domain import FailureKind, VoiceRequest
+from ugc_video.providers.base import ProviderError
 from ugc_video.providers.elevenlabs import ElevenLabsProvider
 
 
@@ -29,3 +32,25 @@ def test_health_voice_validation_and_atomic_audio(tmp_path: Path) -> None:
         )
     )
     assert result.audio_path.read_bytes() == b"ID3audio"
+
+
+class FailingVoiceClient:
+    def __init__(self, error: Exception) -> None:
+        self.voices = SimpleNamespace(get_all=lambda: (_ for _ in ()).throw(error))
+
+
+@pytest.mark.parametrize(
+    ("error", "expected_kind"),
+    [
+        (RuntimeError("401 unauthorized"), FailureKind.AUTHENTICATION),
+        (TimeoutError("private endpoint detail"), FailureKind.TRANSIENT),
+    ],
+)
+def test_voice_lookup_normalizes_sdk_failures(
+    error: Exception, expected_kind: FailureKind
+) -> None:
+    provider = ElevenLabsProvider("secret", client=FailingVoiceClient(error))
+    with pytest.raises(ProviderError) as captured:
+        provider.list_voices()
+    assert captured.value.kind == expected_kind
+    assert "private endpoint detail" not in str(captured.value)

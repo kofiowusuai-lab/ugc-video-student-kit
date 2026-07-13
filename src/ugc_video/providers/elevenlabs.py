@@ -6,6 +6,17 @@ from ugc_video.domain import FailureKind, ProviderHealth, VoiceRequest, VoiceRes
 from ugc_video.providers.base import ProviderError
 
 
+def _failure_kind(error: Exception) -> FailureKind:
+    message = f"{type(error).__name__}: {error}".lower()
+    if any(marker in message for marker in ("401", "403", "unauthorized", "forbidden")):
+        return FailureKind.AUTHENTICATION
+    if "quota" in message or "credit" in message:
+        return FailureKind.QUOTA
+    if "policy" in message:
+        return FailureKind.POLICY
+    return FailureKind.TRANSIENT
+
+
 class ElevenLabsProvider:
     name = "elevenlabs"
 
@@ -35,7 +46,7 @@ class ElevenLabsProvider:
             }
         except Exception as exc:
             raise ProviderError(
-                FailureKind.AUTHENTICATION, "ElevenLabs voice lookup failed"
+                _failure_kind(exc), "ElevenLabs voice lookup failed"
             ) from exc
 
     def validate_voice(self, voice_id: str) -> None:
@@ -52,17 +63,9 @@ class ElevenLabsProvider:
             )
             audio = b"".join(chunks)
         except Exception as exc:
-            message = str(exc).lower()
-            if "quota" in message or "credit" in message:
-                kind = FailureKind.QUOTA
-            elif "401" in message or "unauthorized" in message:
-                kind = FailureKind.AUTHENTICATION
-            elif "policy" in message:
-                kind = FailureKind.POLICY
-            else:
-                kind = FailureKind.TRANSIENT
             raise ProviderError(
-                kind, f"ElevenLabs generation failed: {type(exc).__name__}"
+                _failure_kind(exc),
+                f"ElevenLabs generation failed: {type(exc).__name__}",
             ) from exc
         if not audio:
             raise ProviderError(FailureKind.TRANSIENT, "ElevenLabs returned empty audio")

@@ -39,10 +39,10 @@ def verify_inventory(root: Path, inventory: list[dict[str, object]], deep: bool)
             errors.append(f"missing: {item['path']}")
             continue
         stat = path.stat()
-        if stat.st_size != int(item["size"]):
+        if stat.st_size != int(str(item["size"])):
             errors.append(f"size changed: {item['path']}")
             continue
-        if stat.st_mtime_ns != int(item["mtime_ns"]):
+        if stat.st_mtime_ns != int(str(item["mtime_ns"])):
             errors.append(f"timestamp changed: {item['path']}")
             continue
         if deep and sha256_file(path) != str(item["sha256"]):

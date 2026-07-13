@@ -36,5 +36,6 @@
 - [x] Previous tag remains available.
 - [ ] Rollback tested by installing the previous tag and restoring backed-up configuration.
 - [x] User approved deployment of v0.1.2.
+- [x] User explicitly waived the remaining clean-machine, credentialed-provider, local PowerShell, and rollback-exercise checks for v0.1.2 on July 13, 2026.
 
 Unchecked clean-machine and credentialed checks are release limitations, not implied successes.

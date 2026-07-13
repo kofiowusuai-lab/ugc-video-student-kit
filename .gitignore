@@ -1,0 +1,14 @@
+.worktrees/
+__pycache__/
+.venv/
+.uv/
+.env
+.env.*
+!.env.example
+dist/
+build/
+*.egg-info/
+demo/output/
+demo/runs/
+models/
+artifacts/

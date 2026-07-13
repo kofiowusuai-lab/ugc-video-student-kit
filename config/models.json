@@ -1,0 +1,1 @@
+{"whisper":[{"name":"whisper.cpp-small-en","backend":"whisper.cpp","url":"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin"},{"name":"faster-whisper-small-en","backend":"faster-whisper","model":"Systran/faster-whisper-small.en"},{"name":"mlx-whisper-small","backend":"mlx-whisper","model":"mlx-community/whisper-small-mlx"}]}

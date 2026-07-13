@@ -18,5 +18,12 @@ def version() -> None:
 def doctor(full: bool = False, json_output: bool = typer.Option(False, "--json"), provider: Optional[str] = None) -> None:
     raise typer.Exit(doctor_run(full=full, as_json=json_output, provider=provider))
 
+@app.command()
+def whisper() -> None:
+    """List the configured local Whisper fallback backends."""
+    from ugc_video.whisper.manifest import load_manifest
+    for item in load_manifest().get("whisper", []):
+        typer.echo(f"{item['name']} ({item['backend']})")
+
 if __name__ == "__main__":
     app()

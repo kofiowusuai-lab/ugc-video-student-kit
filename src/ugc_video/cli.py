@@ -5,7 +5,7 @@ from typing import Optional
 import typer
 
 from ugc_video import __version__
-from ugc_video.config import AppConfig, load_config, save_config
+from ugc_video.config import load_config
 from ugc_video.demo import build_offline_services, prepare_demo
 from ugc_video.doctor import run as doctor_run
 from ugc_video.pipeline.orchestrator import run_pipeline
@@ -14,7 +14,8 @@ from ugc_video.pipeline.services import build_services, provider_health
 from ugc_video.paths import AppPaths
 from ugc_video.progress import ProgressReporter
 from ugc_video.run_store import RunStore
-from ugc_video.secrets import read_secrets, write_secret
+from ugc_video.secrets import read_secrets
+from ugc_video.setup_wizard import run_setup_wizard
 
 app = typer.Typer(help="Student-safe UGC video production", invoke_without_command=True)
 whisper_app = typer.Typer(help="Install, inspect, and repair local Whisper fallbacks")
@@ -35,25 +36,41 @@ def version() -> None:
 
 @app.command()
 def setup(
-    fish_key: str = typer.Option("", "--fish-key", prompt="Fish Audio API key", hide_input=True),
+    fish_key: str = typer.Option(
+        "",
+        "--fish-key",
+        prompt="Fish Audio API key (blank keeps a saved key)",
+        hide_input=True,
+        hidden=True,
+        show_default=False,
+    ),
     elevenlabs_key: str = typer.Option(
-        "", "--elevenlabs-key", prompt="ElevenLabs API key (fallback)", hide_input=True
+        "",
+        "--elevenlabs-key",
+        prompt="ElevenLabs API key (optional; blank keeps a saved key)",
+        hide_input=True,
+        hidden=True,
+        show_default=False,
     ),
     xai_key: str = typer.Option(
-        "", "--xai-key", prompt="xAI API key (blank for guided Grok)", hide_input=True
+        "",
+        "--xai-key",
+        prompt="xAI API key (optional; blank uses guided Grok)",
+        hide_input=True,
+        hidden=True,
+        show_default=False,
     ),
 ) -> None:
     paths = AppPaths.from_environment(os.environ)
-    for name, value in (
-        ("FISH_AUDIO_API_KEY", fish_key),
-        ("ELEVENLABS_API_KEY", elevenlabs_key),
-        ("XAI_API_KEY", xai_key),
-    ):
-        if value:
-            write_secret(paths.secrets, name, value)
-    if not paths.config.exists():
-        save_config(paths.config, AppConfig())
-    typer.echo(f"Local configuration saved under: {paths.root}")
+    exit_code = run_setup_wizard(
+        paths,
+        fish_key=fish_key,
+        elevenlabs_key=elevenlabs_key,
+        xai_key=xai_key,
+        output_fn=typer.echo,
+    )
+    if exit_code:
+        raise typer.Exit(exit_code)
 
 
 @app.command()

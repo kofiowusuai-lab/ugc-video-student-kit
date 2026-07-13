@@ -6,6 +6,7 @@ def test_windows_setup_has_wsl_resume_checkpoint() -> None:
     assert "WSL2" in setup
     assert "wsl.exe --install" in setup
     assert "resume-windows-setup.json" in setup
+    assert "bash ./scripts/setup-linux.sh" in setup
 
 
 def test_wsl_setup_uses_locked_sync_and_doctor() -> None:

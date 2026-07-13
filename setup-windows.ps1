@@ -40,7 +40,7 @@ if ($distros -notcontains "Ubuntu") {
 $wslRoot = (& wsl.exe -d Ubuntu -- wslpath -a $Root).Trim()
 $wslHome = (& wsl.exe -d Ubuntu -- bash -lc 'printf %s "$HOME"').Trim()
 $wslTarget = "$wslHome/ugc-video-student-kit"
-& wsl.exe -d Ubuntu -- bash -lc "mkdir -p '$wslTarget' && cp -a '$wslRoot/.' '$wslTarget/' && cd '$wslTarget' && ./scripts/setup-linux.sh"
+& wsl.exe -d Ubuntu -- bash -lc "mkdir -p '$wslTarget' && cp -a '$wslRoot/.' '$wslTarget/' && cd '$wslTarget' && bash ./scripts/setup-linux.sh"
 if ($LASTEXITCODE -ne 0) {
     throw "WSL2 setup failed with exit code $LASTEXITCODE"
 }

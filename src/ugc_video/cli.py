@@ -6,6 +6,7 @@ import typer
 
 from ugc_video import __version__
 from ugc_video.config import load_config
+from ugc_video.demo import build_offline_services, prepare_demo
 from ugc_video.doctor import run as doctor_run
 from ugc_video.pipeline.orchestrator import run_pipeline
 from ugc_video.pipeline.project import create_project, project_paths
@@ -84,6 +85,17 @@ def run_project(project: Path) -> None:
 @app.command()
 def resume(project: Path) -> None:
     run_project(project)
+
+
+@app.command()
+def demo(offline_fixtures: bool = typer.Option(False, "--offline-fixtures")) -> None:
+    paths = AppPaths.from_environment(os.environ)
+    project = prepare_demo(PROJECT_ROOT / "demo", paths.projects / "demo")
+    if offline_fixtures:
+        output = run_pipeline(project, build_offline_services())
+        typer.echo(f"Offline demo complete: {output}")
+        return
+    run_project(project.root)
 
 
 @whisper_app.command("install")

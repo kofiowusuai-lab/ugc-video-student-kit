@@ -1,0 +1,48 @@
+name: quality
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  python:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14]
+        python: ['3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - if: runner.os == 'macOS'
+        run: brew install ffmpeg
+      - run: uv sync --frozen --extra dev
+      - run: uv run pytest -q
+      - run: uv run ruff check .
+      - run: uv run mypy src
+      - run: uv run ugc-video demo --offline-fixtures
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n setup-macos.sh scripts/*.sh START-HERE-MAC.command
+      - uses: gitleaks/gitleaks-action@v2
+  remotion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: remotion/package-lock.json
+      - run: npm ci --prefix remotion
+      - run: npm --prefix remotion run typecheck
+  windows-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: pwsh
+        run: ./tests/platform/Test-WindowsScripts.ps1

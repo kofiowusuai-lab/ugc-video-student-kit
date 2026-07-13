@@ -14,6 +14,8 @@ Last verified: July 13, 2026. Provider plans change; check the linked live pages
 
 ElevenLabs is not required when Fish Audio is available. It is the configured fallback for outages, quota, and unavailable Fish entitlements. Never use fallback to bypass a policy, consent, or licensing rejection.
 
+Use the [setup walkthrough](VOICE-PROVIDER-SETUP.md) to create restricted personal keys and choose authorized voices without copying provider IDs.
+
 ## Official live references
 
 - [OpenAI: Using Codex with your ChatGPT plan](https://help.openai.com/en/articles/11369540-using-codex-with-chatgpt)

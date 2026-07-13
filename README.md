@@ -33,6 +33,8 @@ Double-click `START-HERE-WINDOWS.cmd`. Restart if WSL asks, then run the same fi
 
 ## Configure your own accounts
 
+Follow the [Fish Audio and ElevenLabs setup](docs/VOICE-PROVIDER-SETUP.md) walkthrough to create restricted keys, choose voices by name, and store everything safely.
+
 ```bash
 codex login
 grok

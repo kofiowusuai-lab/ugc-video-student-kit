@@ -1,0 +1,13 @@
+title = "ugc-video-student-kit secret rules"
+[extend]
+useDefault = true
+[[rules]]
+id = "ugc-video-provider-key"
+description = "Cloud provider key assigned in a file"
+regex = '''(?i)(FISH_AUDIO_API_KEY|ELEVENLABS_API_KEY|XAI_API_KEY)\s*=\s*[^\s#]{8,}'''
+keywords = ["API_KEY"]
+[allowlist]
+description = "Empty documentation placeholders"
+regexTarget = "line"
+regexes = ['''(?i)(FISH_AUDIO_API_KEY|ELEVENLABS_API_KEY|XAI_API_KEY)=$''']
+paths = ['''.env.example''']

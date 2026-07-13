@@ -5,6 +5,13 @@ __pycache__/
 .env
 .env.*
 !.env.example
+secrets.env
+auth.json
+*.mp3
+*.wav
+*.opus
+*.mp4
+*.mov
 dist/
 build/
 *.egg-info/

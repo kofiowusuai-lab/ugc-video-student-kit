@@ -8,9 +8,9 @@ description = "Reproducible UGC video workflow for supported student machines"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 license = {text = "MIT"}
-dependencies = ["httpx>=0.28,<1", "platformdirs>=4.3,<5", "pydantic>=2.11,<3", "python-dotenv>=1.1,<2", "rich>=14,<15", "tomli-w>=1.2,<2", "typer>=0.16,<1"]
+dependencies = ["elevenlabs>=2,<3", "httpx>=0.28,<1", "platformdirs>=4.3,<5", "pydantic>=2.11,<3", "python-dotenv>=1.1,<2", "rich>=14,<15", "tomli-w>=1.2,<2", "typer>=0.16,<1"]
 [project.optional-dependencies]
-dev = ["mypy>=1.16,<2", "pytest>=8.4,<9", "pytest-cov>=6.2,<7", "ruff>=0.12,<1"]
+dev = ["mypy>=1.16,<2", "pytest>=8.4,<9", "pytest-cov>=6.2,<7", "respx>=0.22,<1", "ruff>=0.12,<1"]
 mac-whisper = ["faster-whisper>=1.2,<2", "huggingface-hub>=0.33,<1", "mlx-whisper>=0.4,<1", "numpy>=1.26,<3", "scipy>=1.13,<2"]
 wsl-whisper = ["faster-whisper>=1.2,<2", "huggingface-hub>=0.33,<1", "numpy>=1.26,<3", "openai-whisper>=20250625", "scipy>=1.13,<2"]
 [project.scripts]

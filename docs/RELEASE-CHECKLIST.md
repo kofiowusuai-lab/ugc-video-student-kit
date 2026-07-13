@@ -3,9 +3,9 @@
 ## Automated evidence
 
 - [ ] Full pytest, Ruff, mypy, Bash, PowerShell, and Gitleaks checks pass.
-- [ ] Git history secret scan passes.
-- [ ] Offline demo passes without cloud credentials.
-- [ ] Voice setup wizard fake-provider tests pass without live cloud calls.
+- [x] Git history secret scan passes.
+- [x] Offline demo passes without cloud credentials.
+- [x] Voice setup wizard fake-provider tests pass without live cloud calls.
 
 ## Supported machines
 
@@ -26,15 +26,15 @@
 
 ## Documentation and rights
 
-- [ ] Subscription claims rechecked against official pages.
+- [x] Subscription claims rechecked against official pages.
 - [x] Demo asset provenance and fictional identity recorded.
 - [x] Commercial-license warnings visible.
 - [x] Unsupported students directed to contact the instructor.
 
 ## Rollback and deployment
 
-- [ ] Previous tag remains available.
+- [x] Previous tag remains available.
 - [ ] Rollback tested by installing the previous tag and restoring backed-up configuration.
-- [ ] User approved deployment of v0.1.2.
+- [x] User approved deployment of v0.1.2.
 
 Unchecked clean-machine and credentialed checks are release limitations, not implied successes.

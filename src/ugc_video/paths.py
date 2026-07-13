@@ -28,15 +28,25 @@ def ensure_dirs() -> None:
 class AppPaths:
     root: Path
     config: Path
+    secrets: Path
     models: Path
+    state: Path
     cache: Path
-    runs: Path
+    projects: Path
 
     @classmethod
     def from_environment(cls, environment: Mapping[str, str]) -> "AppPaths":
         override = environment.get("UGC_VIDEO_HOME")
         root = Path(override).expanduser() if override else data_dir()
-        paths = cls(root, root / "config", root / "models", root / "cache", root / "runs")
-        for path in (paths.root, paths.config, paths.models, paths.cache, paths.runs):
+        paths = cls(
+            root,
+            root / "config.toml",
+            root / "secrets.env",
+            root / "models",
+            root / "state",
+            root / "cache",
+            root / "projects",
+        )
+        for path in (paths.root, paths.models, paths.state, paths.cache, paths.projects):
             path.mkdir(parents=True, exist_ok=True)
         return paths

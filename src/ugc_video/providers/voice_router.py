@@ -4,7 +4,13 @@ from ugc_video.domain import FailureKind, VoiceRequest, VoiceResult
 from ugc_video.providers.base import ProviderError, VoiceProvider
 from ugc_video.providers.retry import RetryPolicy
 
-FALLBACK_KINDS = {FailureKind.AUTHENTICATION, FailureKind.CONFIGURATION, FailureKind.QUOTA, FailureKind.RATE_LIMIT, FailureKind.TRANSIENT}
+FALLBACK_KINDS = {
+    FailureKind.AUTHENTICATION,
+    FailureKind.CONFIGURATION,
+    FailureKind.QUOTA,
+    FailureKind.RATE_LIMIT,
+    FailureKind.TRANSIENT,
+}
 
 
 class VoiceRouter:
@@ -18,7 +24,12 @@ class VoiceRouter:
         provider.validate_voice(request.voice_id)
         return provider.synthesize(request)
 
-    def synthesize(self, provider: Literal["auto", "fish", "elevenlabs"], fish_request: VoiceRequest, elevenlabs_request: VoiceRequest) -> VoiceResult:
+    def synthesize(
+        self,
+        provider: Literal["auto", "fish", "elevenlabs"],
+        fish_request: VoiceRequest,
+        elevenlabs_request: VoiceRequest,
+    ) -> VoiceResult:
         if provider == "fish":
             return self.retry.run(lambda: self._generate(self.fish, fish_request))
         if provider == "elevenlabs":

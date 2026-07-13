@@ -15,7 +15,13 @@ class PipelineServices:
     finish: Callable[[Path, Path, Path], dict[str, Any]]
 
 
-def _run_stage(store: RunStore, name: str, digest: str, outputs: list[Path], operation: Callable[[], dict[str, Any]]) -> None:
+def _run_stage(
+    store: RunStore,
+    name: str,
+    digest: str,
+    outputs: list[Path],
+    operation: Callable[[], dict[str, Any]],
+) -> None:
     if store.can_reuse(name, digest):
         return
     store.start(name, digest)
@@ -39,13 +45,50 @@ def run_pipeline(project: ProjectPaths, services: PipelineServices) -> Path:
     animation_hash = hash_inputs([project.script, project.still], {"stage": "animation"})
     voice_hash = hash_inputs([project.script], {"stage": "voice"})
     with ThreadPoolExecutor(max_workers=2) as executor:
-        animation_future = executor.submit(_run_stage, store, "animation", animation_hash, [project.animation], lambda: services.animate(script, project.still, project.animation))
-        voice_future = executor.submit(_run_stage, store, "voice", voice_hash, [project.voice], lambda: services.voice(script, project.voice))
-        animation_future.result(); voice_future.result()
-    verify_animation_hash = hash_inputs([project.animation, project.script], {"stage": "verify-animation"})
-    _run_stage(store, "verify-animation", verify_animation_hash, [project.animation], lambda: services.verify(project.animation, script))
-    final_hash = hash_inputs([project.animation, project.voice, project.script], {"stage": "finish"})
-    _run_stage(store, "finish", final_hash, [project.final], lambda: services.finish(project.animation, project.voice, project.final))
+        animation_future = executor.submit(
+            _run_stage,
+            store,
+            "animation",
+            animation_hash,
+            [project.animation],
+            lambda: services.animate(script, project.still, project.animation),
+        )
+        voice_future = executor.submit(
+            _run_stage,
+            store,
+            "voice",
+            voice_hash,
+            [project.voice],
+            lambda: services.voice(script, project.voice),
+        )
+        animation_future.result()
+        voice_future.result()
+    verify_animation_hash = hash_inputs(
+        [project.animation, project.script], {"stage": "verify-animation"}
+    )
+    _run_stage(
+        store,
+        "verify-animation",
+        verify_animation_hash,
+        [project.animation],
+        lambda: services.verify(project.animation, script),
+    )
+    final_hash = hash_inputs(
+        [project.animation, project.voice, project.script], {"stage": "finish"}
+    )
+    _run_stage(
+        store,
+        "finish",
+        final_hash,
+        [project.final],
+        lambda: services.finish(project.animation, project.voice, project.final),
+    )
     verify_final_hash = hash_inputs([project.final, project.script], {"stage": "verify-final"})
-    _run_stage(store, "verify-final", verify_final_hash, [project.final], lambda: services.verify(project.final, script))
+    _run_stage(
+        store,
+        "verify-final",
+        verify_final_hash,
+        [project.final],
+        lambda: services.verify(project.final, script),
+    )
     return project.final

@@ -32,8 +32,34 @@ def fit_audio(source: Path, target_video: Path, destination: Path) -> FitDecisio
         guide.unlink(missing_ok=True)
         return decision
     stretched = destination.with_suffix(".stretched.wav")
-    subprocess.run(["rubberband", "--time", f"{decision.factor:.6f}", "--pitch", "1.0", str(source), str(stretched)], check=True, capture_output=True, text=True)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(stretched), "-af", f"adelay={round(speech_start * 1000)}:all=1,apad,atrim=0:{probe_duration(target_video):.6f}", str(destination)], check=True)
+    subprocess.run(
+        [
+            "rubberband",
+            "--time",
+            f"{decision.factor:.6f}",
+            "--pitch",
+            "1.0",
+            str(source),
+            str(stretched),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-loglevel",
+            "error",
+            "-i",
+            str(stretched),
+            "-af",
+            f"adelay={round(speech_start * 1000)}:all=1,apad,atrim=0:{probe_duration(target_video):.6f}",
+            str(destination),
+        ],
+        check=True,
+    )
     stretched.unlink(missing_ok=True)
     guide.unlink(missing_ok=True)
     return decision

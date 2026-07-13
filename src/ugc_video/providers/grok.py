@@ -13,7 +13,13 @@ from ugc_video.providers.base import ProviderError
 class GrokApiProvider:
     name = "grok-api"
 
-    def __init__(self, api_key: str, client: httpx.Client | None = None, sleep: Callable[[float], None] = time.sleep, max_polls: int = 120) -> None:
+    def __init__(
+        self,
+        api_key: str,
+        client: httpx.Client | None = None,
+        sleep: Callable[[float], None] = time.sleep,
+        max_polls: int = 120,
+    ) -> None:
         self._api_key = api_key
         self.client = client or httpx.Client(timeout=90)
         self.sleep = sleep
@@ -26,12 +32,26 @@ class GrokApiProvider:
     def animate(self, request: AnimationRequest) -> AnimationResult:
         mime = "image/png" if request.image_path.suffix.lower() == ".png" else "image/jpeg"
         encoded = base64.b64encode(request.image_path.read_bytes()).decode("ascii")
-        response = self.client.post("https://api.x.ai/v1/videos/generations", headers=self.headers, json={"model": "grok-imagine-video", "prompt": request.prompt, "image": {"url": f"data:{mime};base64,{encoded}"}, "duration": request.duration_seconds, "aspect_ratio": request.aspect_ratio, "resolution": request.resolution})
+        response = self.client.post(
+            "https://api.x.ai/v1/videos/generations",
+            headers=self.headers,
+            json={
+                "model": "grok-imagine-video",
+                "prompt": request.prompt,
+                "image": {"url": f"data:{mime};base64,{encoded}"},
+                "duration": request.duration_seconds,
+                "aspect_ratio": request.aspect_ratio,
+                "resolution": request.resolution,
+            },
+        )
         if response.is_error:
             self._raise(response)
         request_id = str(response.json()["request_id"])
         for _ in range(self.max_polls):
-            poll = self.client.get(f"https://api.x.ai/v1/videos/{request_id}", headers={"Authorization": f"Bearer {self._api_key}"})
+            poll = self.client.get(
+                f"https://api.x.ai/v1/videos/{request_id}",
+                headers={"Authorization": f"Bearer {self._api_key}"},
+            )
             if poll.is_error:
                 self._raise(poll)
             payload = poll.json()
@@ -42,9 +62,17 @@ class GrokApiProvider:
                 temporary = request.destination.with_suffix(".part")
                 temporary.write_bytes(media.content)
                 temporary.replace(request.destination)
-                return AnimationResult(provider=self.name, model=str(payload.get("model", "grok-imagine-video")), video_path=request.destination, request_id=request_id, usage=payload.get("usage", {}))
+                return AnimationResult(
+                    provider=self.name,
+                    model=str(payload.get("model", "grok-imagine-video")),
+                    video_path=request.destination,
+                    request_id=request_id,
+                    usage=payload.get("usage", {}),
+                )
             if payload.get("status") in {"failed", "expired"}:
-                raise ProviderError(FailureKind.TRANSIENT, f"Grok video request {payload['status']}")
+                raise ProviderError(
+                    FailureKind.TRANSIENT, f"Grok video request {payload['status']}"
+                )
             self.sleep(5)
         raise ProviderError(FailureKind.TRANSIENT, "Grok video polling timed out")
 
@@ -68,5 +96,19 @@ class GuidedGrokProvider:
 
     def prepare(self, request: AnimationRequest) -> Path:
         self.handoff_path.parent.mkdir(parents=True, exist_ok=True)
-        self.handoff_path.write_text(json.dumps({"image": str(request.image_path.resolve()), "prompt": request.prompt, "destination": str(request.destination.resolve()), "durationSeconds": request.duration_seconds, "aspectRatio": request.aspect_ratio, "resolution": request.resolution}, indent=2) + "\n", encoding="utf-8")
+        self.handoff_path.write_text(
+            json.dumps(
+                {
+                    "image": str(request.image_path.resolve()),
+                    "prompt": request.prompt,
+                    "destination": str(request.destination.resolve()),
+                    "durationSeconds": request.duration_seconds,
+                    "aspectRatio": request.aspect_ratio,
+                    "resolution": request.resolution,
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         return self.handoff_path

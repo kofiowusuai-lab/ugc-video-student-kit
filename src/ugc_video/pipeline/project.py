@@ -18,7 +18,17 @@ class ProjectPaths:
 
 
 def project_paths(root: Path) -> ProjectPaths:
-    return ProjectPaths(root=root, brief=root / "brief.json", script=root / "script.txt", still=root / "assets/still.png", animation=root / "work/animation.mp4", voice=root / "work/voice.mp3", fitted_voice=root / "work/voice-fitted.wav", final=root / "output/final.mp4", manifest=root / "run.json")
+    return ProjectPaths(
+        root=root,
+        brief=root / "brief.json",
+        script=root / "script.txt",
+        still=root / "assets/still.png",
+        animation=root / "work/animation.mp4",
+        voice=root / "work/voice.mp3",
+        fitted_voice=root / "work/voice-fitted.wav",
+        final=root / "output/final.mp4",
+        manifest=root / "run.json",
+    )
 
 
 def create_project(root: Path, brief: dict[str, Any]) -> ProjectPaths:

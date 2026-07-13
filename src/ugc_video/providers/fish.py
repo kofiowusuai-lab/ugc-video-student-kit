@@ -7,7 +7,12 @@ from ugc_video.providers.base import ProviderError
 class FishAudioProvider:
     name = "fish"
 
-    def __init__(self, api_key: str, base_url: str = "https://api.fish.audio", client: httpx.Client | None = None) -> None:
+    def __init__(
+        self,
+        api_key: str,
+        base_url: str = "https://api.fish.audio",
+        client: httpx.Client | None = None,
+    ) -> None:
         self._api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.client = client or httpx.Client(timeout=60)
@@ -24,13 +29,21 @@ class FishAudioProvider:
         elif response.status_code >= 500:
             kind = FailureKind.TRANSIENT
         else:
-            kind = FailureKind.POLICY if "policy" in response.text.lower() else FailureKind.CONFIGURATION
+            kind = (
+                FailureKind.POLICY
+                if "policy" in response.text.lower()
+                else FailureKind.CONFIGURATION
+            )
         raise ProviderError(kind, f"Fish Audio request failed with HTTP {response.status_code}")
 
     def bookmarked_voices(self) -> dict[str, str]:
         voices: dict[str, str] = {}
         for page in range(1, 101):
-            response = self.client.get(f"{self.base_url}/model", params={"page_size": 100, "page_number": page}, headers=self.headers)
+            response = self.client.get(
+                f"{self.base_url}/model",
+                params={"page_size": 100, "page_number": page},
+                headers=self.headers,
+            )
             if response.is_error:
                 self._raise(response)
             payload = response.json()
@@ -56,7 +69,11 @@ class FishAudioProvider:
             raise ProviderError(FailureKind.CONFIGURATION, "Fish Audio voice is not bookmarked")
 
     def synthesize(self, request: VoiceRequest) -> VoiceResult:
-        response = self.client.post(f"{self.base_url}/v1/tts", headers={**self.headers, "Content-Type": "application/json", "model": request.model}, json={"text": request.text, "reference_id": request.voice_id, "format": "mp3"})
+        response = self.client.post(
+            f"{self.base_url}/v1/tts",
+            headers={**self.headers, "Content-Type": "application/json", "model": request.model},
+            json={"text": request.text, "reference_id": request.voice_id, "format": "mp3"},
+        )
         if response.is_error:
             self._raise(response)
         if not response.content:
@@ -65,4 +82,9 @@ class FishAudioProvider:
         temporary = request.destination.with_suffix(request.destination.suffix + ".part")
         temporary.write_bytes(response.content)
         temporary.replace(request.destination)
-        return VoiceResult(provider=self.name, model=request.model, voice_id=request.voice_id, audio_path=request.destination)
+        return VoiceResult(
+            provider=self.name,
+            model=request.model,
+            voice_id=request.voice_id,
+            audio_path=request.destination,
+        )

@@ -1,6 +1,13 @@
 from typing import Protocol
 
-from ugc_video.domain import AnimationRequest, AnimationResult, FailureKind, ProviderHealth, VoiceRequest, VoiceResult
+from ugc_video.domain import (
+    AnimationRequest,
+    AnimationResult,
+    FailureKind,
+    ProviderHealth,
+    VoiceRequest,
+    VoiceResult,
+)
 
 
 class ProviderError(RuntimeError):
@@ -12,6 +19,7 @@ class ProviderError(RuntimeError):
 
 class VoiceProvider(Protocol):
     name: str
+
     def health(self) -> ProviderHealth: ...
     def list_voices(self) -> dict[str, str]: ...
     def validate_voice(self, voice_id: str) -> None: ...
@@ -20,4 +28,5 @@ class VoiceProvider(Protocol):
 
 class AnimationProvider(Protocol):
     name: str
+
     def animate(self, request: AnimationRequest) -> AnimationResult: ...

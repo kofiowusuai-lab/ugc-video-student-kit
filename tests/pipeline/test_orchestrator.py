@@ -20,13 +20,26 @@ def test_resume_does_not_repeat_completed_cloud_work(tmp_path: Path) -> None:
 
     def make_services() -> PipelineServices:
         def animate(script: str, still: Path, output: Path) -> dict[str, str]:
-            calls["animate"] += 1; output.parent.mkdir(parents=True, exist_ok=True); output.write_bytes(b"video"); return {"provider": "fake-grok"}
+            calls["animate"] += 1
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_bytes(b"video")
+            return {"provider": "fake-grok"}
+
         def voice(script: str, output: Path) -> dict[str, str]:
-            calls["voice"] += 1; output.write_bytes(b"audio"); return {"provider": "fish"}
+            calls["voice"] += 1
+            output.write_bytes(b"audio")
+            return {"provider": "fish"}
+
         def verify(media: Path, expected: str) -> dict[str, str]:
-            calls["verify"] += 1; return {"backend": "fake-whisper", "text": expected}
+            calls["verify"] += 1
+            return {"backend": "fake-whisper", "text": expected}
+
         def finish(animation: Path, audio: Path, output: Path) -> dict[str, str]:
-            calls["finish"] += 1; output.parent.mkdir(parents=True, exist_ok=True); output.write_bytes(b"final"); return {"renderer": "fake"}
+            calls["finish"] += 1
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_bytes(b"final")
+            return {"renderer": "fake"}
+
         return PipelineServices(animate=animate, voice=voice, verify=verify, finish=finish)
 
     run_pipeline(project, make_services())

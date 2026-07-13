@@ -1,10 +1,18 @@
-import typer
 import os
 from pathlib import Path
 from typing import Optional
+
+import typer
+
 from ugc_video import __version__
+from ugc_video.config import load_config
 from ugc_video.doctor import run as doctor_run
+from ugc_video.pipeline.orchestrator import run_pipeline
+from ugc_video.pipeline.project import create_project, project_paths
+from ugc_video.pipeline.services import build_services, provider_health
 from ugc_video.paths import AppPaths
+from ugc_video.run_store import RunStore
+from ugc_video.secrets import read_secrets
 
 app = typer.Typer(help="Student-safe UGC video production", invoke_without_command=True)
 whisper_app = typer.Typer(help="Install, inspect, and repair local Whisper fallbacks")
@@ -29,7 +37,50 @@ def doctor(
     json_output: bool = typer.Option(False, "--json"),
     provider: Optional[str] = None,
 ) -> None:
+    if provider:
+        paths = AppPaths.from_environment(os.environ)
+        health = provider_health(read_secrets(paths.secrets), provider)
+        typer.echo(f"{'PASS' if health.ok else 'FAIL'} {health.provider}: {health.detail}")
+        if not health.ok:
+            raise typer.Exit(2)
+        return
     raise typer.Exit(doctor_run(full=full, as_json=json_output, provider=provider))
+
+
+@app.command("new")
+def new_project(
+    name: str,
+    product: str = typer.Option("", "--product", prompt=True),
+    cta: str = typer.Option("", "--cta", prompt=True),
+) -> None:
+    paths = AppPaths.from_environment(os.environ)
+    project = create_project(paths.projects / name, {"product": product, "cta": cta})
+    typer.echo(f"Project created: {project.root}")
+
+
+@app.command()
+def status(project: Path) -> None:
+    manifest = RunStore(project / "run.json").load()
+    if not manifest.stages:
+        typer.echo("No stages have run")
+        return
+    for name, record in manifest.stages.items():
+        typer.echo(f"{record.status.value.upper()} {name}: {record.detail}")
+
+
+@app.command("run")
+def run_project(project: Path) -> None:
+    paths = AppPaths.from_environment(os.environ)
+    config = load_config(paths.config)
+    secrets = read_secrets(paths.secrets)
+    project_config = project_paths(project)
+    output = run_pipeline(project_config, build_services(config, secrets, project_config))
+    typer.echo(f"Final video: {output}")
+
+
+@app.command()
+def resume(project: Path) -> None:
+    run_project(project)
 
 
 @whisper_app.command("install")

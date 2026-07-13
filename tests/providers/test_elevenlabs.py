@@ -7,8 +7,12 @@ from ugc_video.providers.elevenlabs import ElevenLabsProvider
 
 class FakeElevenClient:
     def __init__(self) -> None:
-        self.voices = SimpleNamespace(get_all=lambda: SimpleNamespace(voices=[SimpleNamespace(voice_id="v1", name="Demo")]))
-        self.user = SimpleNamespace(get_subscription=lambda: SimpleNamespace(character_limit=10_000, character_count=125))
+        self.voices = SimpleNamespace(
+            get_all=lambda: SimpleNamespace(voices=[SimpleNamespace(voice_id="v1", name="Demo")])
+        )
+        self.user = SimpleNamespace(
+            get_subscription=lambda: SimpleNamespace(character_limit=10_000, character_count=125)
+        )
         self.text_to_speech = SimpleNamespace(convert=lambda **kwargs: iter([b"ID3", b"audio"]))
 
 
@@ -16,5 +20,12 @@ def test_health_voice_validation_and_atomic_audio(tmp_path: Path) -> None:
     provider = ElevenLabsProvider("secret", client=FakeElevenClient())
     assert provider.health().remaining == 9_875
     provider.validate_voice("v1")
-    result = provider.synthesize(VoiceRequest(text="Exact line.", voice_id="v1", model="eleven_flash_v2_5", destination=tmp_path / "voice.mp3"))
+    result = provider.synthesize(
+        VoiceRequest(
+            text="Exact line.",
+            voice_id="v1",
+            model="eleven_flash_v2_5",
+            destination=tmp_path / "voice.mp3",
+        )
+    )
     assert result.audio_path.read_bytes() == b"ID3audio"

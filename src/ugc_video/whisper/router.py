@@ -1,5 +1,6 @@
 import re
 import time
+from collections.abc import Sequence
 from pathlib import Path
 
 from ugc_video.whisper.types import Attempt, RoutedTranscript, WhisperBackend
@@ -17,7 +18,7 @@ class AllBackendsFailed(RuntimeError):
 
 
 def transcribe_with_fallback(
-    backends: list[WhisperBackend],
+    backends: Sequence[WhisperBackend],
     media: Path,
     language: str,
     expected_text: str = "",

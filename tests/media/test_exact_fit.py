@@ -23,5 +23,10 @@ def test_fit_policy_prefers_small_change_and_rejects_robotic_factor() -> None:
 
 def test_speech_window_removes_leading_and_trailing_silence(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr("ugc_video.audio.media.probe_duration", lambda path: 6.0)
-    monkeypatch.setattr("ugc_video.audio.media.subprocess.run", lambda *args, **kwargs: SimpleNamespace(stderr="silence_start: 0\nsilence_end: 0.5\nsilence_start: 5.25\nsilence_end: 6.0\n"))
+    monkeypatch.setattr(
+        "ugc_video.audio.media.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(
+            stderr="silence_start: 0\nsilence_end: 0.5\nsilence_start: 5.25\nsilence_end: 6.0\n"
+        ),
+    )
     assert speech_window(tmp_path / "guide.wav") == (0.5, 5.25)

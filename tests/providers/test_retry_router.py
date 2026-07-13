@@ -32,12 +32,21 @@ class FakeVoiceProvider:
 
 
 def request(tmp_path: Path) -> VoiceRequest:
-    return VoiceRequest(text="Exact line.", voice_id="voice", model="model", destination=tmp_path / "voice.mp3")
+    return VoiceRequest(
+        text="Exact line.", voice_id="voice", model="model", destination=tmp_path / "voice.mp3"
+    )
 
 
 def test_transient_fish_failure_retries_twice_then_falls_back(tmp_path: Path) -> None:
     fish = FakeVoiceProvider("fish", [ProviderError(FailureKind.TRANSIENT, "down")] * 3)
-    eleven = FakeVoiceProvider("elevenlabs", [VoiceResult(provider="elevenlabs", model="m", voice_id="v", audio_path=tmp_path / "voice.mp3")])
+    eleven = FakeVoiceProvider(
+        "elevenlabs",
+        [
+            VoiceResult(
+                provider="elevenlabs", model="m", voice_id="v", audio_path=tmp_path / "voice.mp3"
+            )
+        ],
+    )
     router = VoiceRouter(fish, eleven, RetryPolicy(sleep=lambda _: None))
     result = router.synthesize("auto", request(tmp_path), request(tmp_path))
     assert result.provider == "elevenlabs"

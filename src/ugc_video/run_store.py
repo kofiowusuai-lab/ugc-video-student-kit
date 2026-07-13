@@ -44,14 +44,29 @@ class RunStore:
         with self._lock:
             manifest = self._load_unlocked()
             previous = manifest.stages.get(name, StageRecord())
-            manifest.stages[name] = StageRecord(status=StageStatus.RUNNING, input_hash=input_hash, attempts=previous.attempts + 1, started_at=utc_now())
+            manifest.stages[name] = StageRecord(
+                status=StageStatus.RUNNING,
+                input_hash=input_hash,
+                attempts=previous.attempts + 1,
+                started_at=utc_now(),
+            )
             self._save_unlocked(manifest)
 
-    def complete(self, name: str, input_hash: str, outputs: list[Path], metadata: dict[str, Any]) -> None:
+    def complete(
+        self, name: str, input_hash: str, outputs: list[Path], metadata: dict[str, Any]
+    ) -> None:
         with self._lock:
             manifest = self._load_unlocked()
             previous = manifest.stages.get(name, StageRecord())
-            manifest.stages[name] = StageRecord(status=StageStatus.PASSED, input_hash=input_hash, outputs=outputs, attempts=max(previous.attempts, 1), started_at=previous.started_at, completed_at=utc_now(), metadata=metadata)
+            manifest.stages[name] = StageRecord(
+                status=StageStatus.PASSED,
+                input_hash=input_hash,
+                outputs=outputs,
+                attempts=max(previous.attempts, 1),
+                started_at=previous.started_at,
+                completed_at=utc_now(),
+                metadata=metadata,
+            )
             self._save_unlocked(manifest)
 
     def fail(self, name: str, detail: str) -> None:
@@ -67,4 +82,10 @@ class RunStore:
     def can_reuse(self, name: str, input_hash: str) -> bool:
         with self._lock:
             record = self._load_unlocked().stages.get(name)
-            return bool(record and record.status == StageStatus.PASSED and record.input_hash == input_hash and record.outputs and all(path.exists() for path in record.outputs))
+            return bool(
+                record
+                and record.status == StageStatus.PASSED
+                and record.input_hash == input_hash
+                and record.outputs
+                and all(path.exists() for path in record.outputs)
+            )

@@ -4,6 +4,7 @@ import sys
 
 def main() -> None:
     import whisper
+
     model_root, media, language = sys.argv[1:4]
     model = whisper.load_model("small", download_root=model_root)
     result = model.transcribe(media, language=language, word_timestamps=True)

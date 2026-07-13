@@ -5,6 +5,8 @@ from typing import Mapping
 from platformdirs import user_cache_dir, user_config_dir, user_data_dir
 
 APP = "ugc-video"
+
+
 def config_dir() -> Path:
     return Path(user_config_dir(APP))
 

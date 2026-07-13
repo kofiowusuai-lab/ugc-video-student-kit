@@ -34,5 +34,4 @@ class RoutedTranscript:
 class WhisperBackend(Protocol):
     name: str
 
-    def transcribe(self, media: Path, language: str) -> Transcript:
-        ...
+    def transcribe(self, media: Path, language: str) -> Transcript: ...

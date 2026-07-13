@@ -2,7 +2,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 
 @dataclass(frozen=True)
@@ -50,6 +50,6 @@ def verify_inventory(root: Path, inventory: list[dict[str, object]], deep: bool)
     return IntegrityResult(ok=not errors, errors=errors)
 
 
-def load_manifest(path: Optional[Path] = None) -> dict:
+def load_manifest(path: Optional[Path] = None) -> dict[str, object]:
     path = path or Path(__file__).parents[3] / "config" / "models.json"
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast(dict[str, object], json.loads(path.read_text(encoding="utf-8")))

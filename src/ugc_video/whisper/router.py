@@ -34,7 +34,9 @@ def transcribe_with_fallback(
                 attempts.append(Attempt(backend.name, "rejected", elapsed, "empty transcript"))
                 continue
             if expected and normalized != expected:
-                attempts.append(Attempt(backend.name, "rejected", elapsed, "expected text mismatch"))
+                attempts.append(
+                    Attempt(backend.name, "rejected", elapsed, "expected text mismatch")
+                )
                 continue
             attempts.append(Attempt(backend.name, "succeeded", elapsed))
             return RoutedTranscript(backend.name, transcript, attempts)

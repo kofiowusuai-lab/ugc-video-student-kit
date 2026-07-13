@@ -4,6 +4,7 @@ import sys
 
 def main() -> None:
     from faster_whisper import WhisperModel
+
     model_path, media, language = sys.argv[1:4]
     model = WhisperModel(model_path, device="cpu", compute_type="int8")
     segments, _ = model.transcribe(media, language=language, word_timestamps=True)

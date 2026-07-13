@@ -30,7 +30,9 @@ def atomic_json(path: Path, payload: dict[str, object]) -> None:
     temporary.replace(path)
 
 
-def install_models(paths: AppPaths, source_manifest: Path, force_names: Optional[Set[str]] = None) -> Path:
+def install_models(
+    paths: AppPaths, source_manifest: Path, force_names: Optional[Set[str]] = None
+) -> Path:
     definitions = json.loads(source_manifest.read_text(encoding="utf-8"))[platform_key()]
     installed: list[dict[str, object]] = []
     force_names = force_names or set()
@@ -54,12 +56,16 @@ def install_models(paths: AppPaths, source_manifest: Path, force_names: Optional
             elif definition["kind"] == "huggingface":
                 hub = importlib.import_module("huggingface_hub")
                 revision = hub.HfApi().model_info(definition["source"]).sha
-                hub.snapshot_download(repo_id=definition["source"], local_dir=destination, revision=revision)
+                hub.snapshot_download(
+                    repo_id=definition["source"], local_dir=destination, revision=revision
+                )
             else:
                 whisper = importlib.import_module("whisper")
                 whisper.load_model(definition["source"], download_root=str(destination))
                 revision = str(getattr(whisper, "__version__", "package-version-unavailable"))
-            installed.append({**definition, "revision": revision, "inventory": build_inventory(destination)})
+            installed.append(
+                {**definition, "revision": revision, "inventory": build_inventory(destination)}
+            )
     except Exception:
         for destination, quarantine in quarantines.items():
             shutil.rmtree(destination, ignore_errors=True)
@@ -90,7 +96,22 @@ def create_health_fixture(paths: AppPaths) -> Path:
     if platform.system() == "Darwin":
         aiff = fixture_root / "whisper-health.aiff"
         subprocess.run(["say", "-o", str(aiff), "Whisper health check."], check=True)
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(aiff), "-ar", "16000", "-ac", "1", str(destination)], check=True)
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-loglevel",
+                "error",
+                "-i",
+                str(aiff),
+                "-ar",
+                "16000",
+                "-ac",
+                "1",
+                str(destination),
+            ],
+            check=True,
+        )
         aiff.unlink(missing_ok=True)
     else:
         subprocess.run(["espeak-ng", "-w", str(destination), "Whisper health check."], check=True)

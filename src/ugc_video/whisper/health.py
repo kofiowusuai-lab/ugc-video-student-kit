@@ -23,7 +23,9 @@ def inspect_whisper(deep: bool = False) -> list[Capability]:
     for item in payload.get("models", []):
         name = str(item["name"])
         integrity = verify_inventory(paths.models / name, item.get("inventory", []), deep=deep)
-        checks.append(Capability(name, integrity.ok, str(paths.models / name), "; ".join(integrity.errors)))
+        checks.append(
+            Capability(name, integrity.ok, str(paths.models / name), "; ".join(integrity.errors))
+        )
     if not deep:
         return checks
     fixture = paths.root / "fixtures/whisper-health.wav"
@@ -31,7 +33,14 @@ def inspect_whisper(deep: bool = False) -> list[Capability]:
         try:
             transcript = backend.transcribe(fixture, "en")
             ok = normalize_text(transcript.text) == normalize_text(FIXTURE_TEXT)
-            checks.append(Capability(f"{backend.name}-deep", ok, transcript.text, "" if ok else "fixture transcript mismatch"))
+            checks.append(
+                Capability(
+                    f"{backend.name}-deep",
+                    ok,
+                    transcript.text,
+                    "" if ok else "fixture transcript mismatch",
+                )
+            )
         except Exception as exc:
             checks.append(Capability(f"{backend.name}-deep", False, "", str(exc)))
     return checks

@@ -21,7 +21,11 @@ def version() -> None:
     typer.echo(f"ugc-video {__version__}")
 
 @app.command()
-def doctor(full: bool = False, json_output: bool = typer.Option(False, "--json"), provider: Optional[str] = None) -> None:
+def doctor(
+    full: bool = typer.Option(False, "--full/--fast"),
+    json_output: bool = typer.Option(False, "--json"),
+    provider: Optional[str] = None,
+) -> None:
     raise typer.Exit(doctor_run(full=full, as_json=json_output, provider=provider))
 
 @whisper_app.command("install")
